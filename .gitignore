@@ -2,3 +2,5 @@
 host_details.json
 backup_details.json
 *.my.cnf
+dbs
+ftp

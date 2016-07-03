@@ -1,0 +1,11 @@
+{
+  "dbs": {
+      "md": {
+        "host": "host",
+        "user": "user",
+        "password": "password",
+        "schema": "schema"
+      }
+  },
+  "ftp": {}
+}
