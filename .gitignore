@@ -4,3 +4,4 @@ backup_details.json
 *.my.cnf
 dbs
 ftp
+.idea
