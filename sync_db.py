@@ -77,13 +77,3 @@ for db_backup_name in backup_details['dbs']:
     shutil.rmtree(download_loc)
     os.unlink(day_file_to_save)
     os.unlink(my_cnf_filename)
-
-
-exit()
-
-db = WookieDb.WookieDb(config_file="host_details.json")
-
-dbs = db.show_databases()
-for database in dbs:
-    db.select_db(database[0])
-    print db.show_tables()
