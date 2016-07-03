@@ -17,3 +17,4 @@ to be created
     * SFTP support
     * Syncing entire directories
     * Possibly rsync style copy via local cache?
+* Automatic detection of mysqldump program (currently noobishly linked directly to my copy)
