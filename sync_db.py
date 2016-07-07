@@ -6,11 +6,12 @@ import subprocess
 import time
 import tarfile
 import uuid
+from ftplib import FTP
 
 backup_detail_file = open("backup_details.json", "r")
 backup_details = json.load(backup_detail_file)
 
-MYSQL_DUMP_LOC = '"C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysqldump.exe"'
+MYSQL_DUMP_LOC = backup_details['MYSQL_DUMP_LOC']
 DB_DUMP_LOC = "dbs"
 
 print backup_details
@@ -77,3 +78,12 @@ for db_backup_name in backup_details['dbs']:
     shutil.rmtree(download_loc)
     os.unlink(day_file_to_save)
     os.unlink(my_cnf_filename)
+
+for host_backup_name in backup_details['ftp']:
+    host_backup_info = backup_details['ftp'][host_backup_name]
+
+    ftp = FTP(host_backup_info['host'], host_backup_info['user'], host_backup_info['password'])
+    ftp.login()
+
+    print ftp.retrlines('LIST')
+    

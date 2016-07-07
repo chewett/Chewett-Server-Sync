@@ -1,11 +1,19 @@
 {
+  "MYSQL_DUMP_LOCATION": "\"C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysqldump.exe\"",
   "dbs": {
-      "md": {
+      "place1": {
         "host": "host",
         "user": "user",
         "password": "password",
         "schema": "schema"
       }
   },
-  "ftp": {}
+  "ftp": {
+      "place2": {
+        "host": "host",
+        "user": "user",
+        "password": "password",
+        "directory": "directory"
+      }
+  }
 }
