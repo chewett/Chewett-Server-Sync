@@ -20,13 +20,9 @@ for db_backup_name in backup_details['dbs']:
     print db_backup_name
     host_backup_info = backup_details['dbs'][db_backup_name]
 
-    my_cnf_filename = db_backup_name + '.my.cnf'
-    my_cnf_file = open(my_cnf_filename, 'w')
-    my_cnf_file.writelines(["[mysqldump]\r\n", 'password="' + host_backup_info['password'] + '"'])
-    my_cnf_file.close()
-
     db = WookieDb.WookieDb(host=host_backup_info['host'], user=host_backup_info['user'], password=host_backup_info['password'], db=host_backup_info['schema'])
-    tables = db.show_tables()
+    tables = [t[0] for t in db.show_tables()]
+    print "found " + str(len(tables)) + " tables"
 
     if not os.path.isdir(DB_DUMP_LOC):
         os.mkdir(DB_DUMP_LOC)
@@ -46,18 +42,9 @@ for db_backup_name in backup_details['dbs']:
         shutil.rmtree(download_loc)
         os.mkdir(download_loc)
 
-    for table in tables:
-        command = MYSQL_DUMP_LOC + ' --defaults-file='+ my_cnf_filename +' --host=' + host_backup_info['host'] +' --protocol=tcp --user=' + host_backup_info['user'] + ' --lock-tables=FALSE --compress=TRUE --port=3306 --default-character-set=utf8 --skip-triggers "'+ host_backup_info['schema']+'" "'+table[0]+'" > "' + os.path.join(download_loc, table[0] + ".sql")+ '"'
-        print command
-        subprocess.call(command, shell=True)
-
-    day_filename = time.strftime(db_backup_name + "_%Y_%m_%d.tgz")
-    week_filename = time.strftime(db_backup_name + "_%Y_%U.tgz")
-    day_file_to_save = os.path.join(db_download_loc, day_filename)
-
-    with tarfile.open(day_file_to_save, "w:gz") as tar:
-        for name in os.listdir(download_loc):
-            tar.add(os.path.join(download_loc,name))
+    day_filename = time.strftime(db_backup_name + "_day_%Y_%m_%d.tgz")
+    week_filename = time.strftime(db_backup_name + "_week_%Y_%U.tgz")
+    month_filename = time.strftime(db_backup_name + "_month_%Y_%m.tgz")
 
     day_backup_loc = os.path.join(backup_location, "day")
     if not os.path.isdir(day_backup_loc):
@@ -65,7 +52,9 @@ for db_backup_name in backup_details['dbs']:
 
     day_backup = os.path.join(day_backup_loc, day_filename)
     if not os.path.isfile(day_backup):
-        shutil.copy(day_file_to_save, day_backup)
+        copy_day_file = True
+    else:
+        copy_day_file = False
 
     week_backup_loc = os.path.join(backup_location, "week")
     if not os.path.isdir(week_backup_loc):
@@ -73,11 +62,39 @@ for db_backup_name in backup_details['dbs']:
 
     week_backup = os.path.join(week_backup_loc, week_filename)
     if not os.path.isfile(week_backup):
-        shutil.copy(day_file_to_save, week_backup)
+        copy_week_file = True
+    else:
+        copy_week_file = False
 
-    shutil.rmtree(download_loc)
-    os.unlink(day_file_to_save)
-    os.unlink(my_cnf_filename)
+    month_backup_loc = os.path.join(backup_location, "month")
+    if not os.path.isdir(month_backup_loc):
+        os.mkdir(month_backup_loc )
+
+    month_backup = os.path.join(month_backup_loc, month_filename)
+    if not os.path.isfile(month_backup):
+        copy_month_file = True
+    else:
+        copy_month_file = False
+
+    if copy_day_file or copy_week_file or copy_month_file:
+        db.dump_tables(tables, download_loc)
+
+        day_file_to_save = os.path.join(db_download_loc, day_filename)
+
+        with tarfile.open(day_file_to_save, "w:gz") as tar:
+            for name in os.listdir(download_loc):
+                tar.add(os.path.join(download_loc,name))
+
+        if copy_day_file:
+            shutil.copy(day_file_to_save, day_backup)
+        if copy_week_file:
+            shutil.copy(day_file_to_save, week_backup)
+        if copy_month_file:
+            shutil.copy(day_file_to_save, month_backup)
+
+        shutil.rmtree(download_loc)
+        os.unlink(day_file_to_save)
+        os.unlink(my_cnf_filename)
 
 for host_backup_name in backup_details['ftp']:
     host_backup_info = backup_details['ftp'][host_backup_name]
