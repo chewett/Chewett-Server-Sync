@@ -12,7 +12,6 @@ import re
 backup_detail_file = open("backup_details.json", "r")
 backup_details = json.load(backup_detail_file)
 
-MYSQL_DUMP_LOC = backup_details['MYSQL_DUMP_LOC']
 DB_DUMP_LOC = "dbs"
 
 print backup_details
