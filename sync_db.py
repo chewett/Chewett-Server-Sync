@@ -7,6 +7,7 @@ import time
 import tarfile
 import uuid
 from ftplib import FTP
+import re
 
 backup_detail_file = open("backup_details.json", "r")
 backup_details = json.load(backup_detail_file)
@@ -23,6 +24,25 @@ for db_backup_name in backup_details['dbs']:
     db = WookieDb.WookieDb(host=host_backup_info['host'], user=host_backup_info['user'], password=host_backup_info['password'], db=host_backup_info['schema'])
     tables = [t[0] for t in db.show_tables()]
     print "found " + str(len(tables)) + " tables"
+
+    if "table_whitelist" in host_backup_info:
+        whitelist = host_backup_info['table_whitelist']
+        new_tables = []
+        for table in tables:
+            add_table = False
+            for whitelist_value in whitelist:
+                pattern = re.compile(whitelist_value)
+                if pattern.match(table):
+                    add_table = True
+                    break
+
+            if add_table:
+                new_tables.append(table)
+
+
+        print "Whitelist ran: " + str(len(new_tables)) + " tables to download after processing whitelist, " + str(len(tables) - len(new_tables)) + " tables filtered out"
+        tables = new_tables
+
 
     if not os.path.isdir(DB_DUMP_LOC):
         os.mkdir(DB_DUMP_LOC)
@@ -83,7 +103,7 @@ for db_backup_name in backup_details['dbs']:
 
         with tarfile.open(day_file_to_save, "w:gz") as tar:
             for name in os.listdir(download_loc):
-                tar.add(os.path.join(download_loc,name))
+                tar.add(os.path.join(download_loc,name), name)
 
         if copy_day_file:
             shutil.copy(day_file_to_save, day_backup)
@@ -94,7 +114,6 @@ for db_backup_name in backup_details['dbs']:
 
         shutil.rmtree(download_loc)
         os.unlink(day_file_to_save)
-        os.unlink(my_cnf_filename)
 
 for host_backup_name in backup_details['ftp']:
     host_backup_info = backup_details['ftp'][host_backup_name]
