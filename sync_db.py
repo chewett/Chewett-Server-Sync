@@ -7,12 +7,15 @@ import time
 import tarfile
 import uuid
 from ftplib import FTP
+import ftplib
 import re
 
 backup_detail_file = open("backup_details.json", "r")
 backup_details = json.load(backup_detail_file)
 
 DB_DUMP_LOC = "dbs"
+FTP_DUMP_LOC = "ftps"
+RSYNC_DUMP_LOC = "rsync"
 
 print backup_details
 
@@ -41,7 +44,6 @@ for db_backup_name in backup_details['dbs']:
 
         print "Whitelist ran: " + str(len(new_tables)) + " tables to download after processing whitelist, " + str(len(tables) - len(new_tables)) + " tables filtered out"
         tables = new_tables
-
 
     if not os.path.isdir(DB_DUMP_LOC):
         os.mkdir(DB_DUMP_LOC)
@@ -117,8 +119,127 @@ for db_backup_name in backup_details['dbs']:
 for host_backup_name in backup_details['ftp']:
     host_backup_info = backup_details['ftp'][host_backup_name]
 
-    ftp = FTP(host_backup_info['host'], host_backup_info['user'], host_backup_info['password'])
-    ftp.login()
+    if not os.path.isdir(FTP_DUMP_LOC):
+        os.mkdir(FTP_DUMP_LOC)
 
-    print ftp.retrlines('LIST')
-    
+    backup_location = os.path.join(DB_DUMP_LOC, host_backup_name)
+    if not os.path.isdir(backup_location):
+        os.mkdir(backup_location)
+
+    ftp_download_loc = os.path.join(backup_location, "tmp")
+    if not os.path.isdir(ftp_download_loc):
+        os.mkdir(ftp_download_loc)
+
+    download_loc = os.path.join(ftp_download_loc, uuid.uuid4().hex)
+    if not os.path.isdir(download_loc):
+        os.mkdir(download_loc)
+    else:
+        shutil.rmtree(download_loc)
+        os.mkdir(download_loc)
+
+
+    ftp = FTP(host_backup_info['host'], host_backup_info['user'], host_backup_info['password'])
+    #ftp.login()
+
+    ftp_root_dir = host_backup_info["directory"]
+
+
+    folders_to_search = [ftp_root_dir]
+    files_to_download = []
+
+    while len(folders_to_search) > 0:
+        folder = folders_to_search[0]
+        folders_to_search.remove(folder)
+
+        ftp.cwd(folder)
+        filelist = ftp.nlst()
+        print filelist
+
+        for file in filelist:
+            try:
+                # this will check if file is folder:
+                ftp.cwd(folder + file + "/")
+                print "folder: " + file
+                folders_to_search.append(folder + file + "/")
+            except ftplib.error_perm:
+                print "file: " + folder + file
+                files_to_download.append((folder + file, os.path.join(download_loc, file)))
+
+    print files_to_download
+
+        #ftp.retrbinary("RETR " + ftp_cur_dir + file, open(os.path.join(download_loc, file), "wb").write)
+
+for rsync_backup_name in backup_details['rsync']:
+    rsync_backup_info = backup_details['rsync'][rsync_backup_name]
+
+    if not os.path.isdir(RSYNC_DUMP_LOC):
+        os.mkdir(RSYNC_DUMP_LOC)
+
+    backup_location = os.path.join(RSYNC_DUMP_LOC, rsync_backup_name)
+    if not os.path.isdir(backup_location):
+        os.mkdir(backup_location)
+
+    rsync_download_loc = os.path.join(backup_location, "current")
+    if not os.path.isdir(rsync_download_loc):
+        os.mkdir(rsync_download_loc)
+
+    command = "rsync -rthvz -e 'ssh -i " + rsync_backup_info['keyfile'] + "' " +\
+        rsync_backup_info['user'] + "@" + rsync_backup_info['host'] + ":" + rsync_backup_info['directory'] +\
+        " ./" + rsync_download_loc
+
+    print command
+    subprocess.call(command, shell=True)
+
+    day_filename = time.strftime(rsync_backup_name + "_day_%Y_%m_%d.tgz")
+    week_filename = time.strftime(rsync_backup_name + "_week_%Y_%U.tgz")
+    month_filename = time.strftime(rsync_backup_name + "_month_%Y_%m.tgz")
+
+    day_backup_loc = os.path.join(backup_location, "day")
+    if not os.path.isdir(day_backup_loc):
+        os.mkdir(day_backup_loc)
+
+    day_backup = os.path.join(day_backup_loc, day_filename)
+    if not os.path.isfile(day_backup):
+        copy_day_file = True
+    else:
+        copy_day_file = False
+
+    week_backup_loc = os.path.join(backup_location, "week")
+    if not os.path.isdir(week_backup_loc):
+        os.mkdir(week_backup_loc)
+
+    week_backup = os.path.join(week_backup_loc, week_filename)
+    if not os.path.isfile(week_backup):
+        copy_week_file = True
+    else:
+        copy_week_file = False
+
+    month_backup_loc = os.path.join(backup_location, "month")
+    if not os.path.isdir(month_backup_loc):
+        os.mkdir(month_backup_loc)
+
+    month_backup = os.path.join(month_backup_loc, month_filename)
+    if not os.path.isfile(month_backup):
+        copy_month_file = True
+    else:
+        copy_month_file = False
+
+    if copy_day_file or copy_week_file or copy_month_file:
+        rsync_temp_loc = os.path.join(backup_location, "tmp")
+        if not os.path.isdir(rsync_temp_loc):
+            os.mkdir(rsync_temp_loc)
+
+        day_file_to_save = os.path.join(rsync_temp_loc, day_filename)
+
+        with tarfile.open(day_file_to_save, "w:gz") as tar:
+            for name in os.listdir(rsync_download_loc):
+                tar.add(os.path.join(rsync_download_loc, name), name)
+
+        if copy_day_file:
+            shutil.copy(day_file_to_save, day_backup)
+        if copy_week_file:
+            shutil.copy(day_file_to_save, week_backup)
+        if copy_month_file:
+            shutil.copy(day_file_to_save, month_backup)
+
+        os.unlink(day_file_to_save)
