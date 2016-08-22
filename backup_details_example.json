@@ -14,5 +14,13 @@
         "password": "password",
         "directory": "directory"
       }
+  },
+  "rsync": {
+    "chewett": {
+      "host": "hostname",
+      "user": "username",
+      "directory": "~/*",
+      "keyfile": "keyfile"
+    }
   }
 }
