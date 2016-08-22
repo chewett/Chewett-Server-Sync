@@ -5,3 +5,4 @@ backup_details.json
 dbs
 ftp
 .idea
+rsync
