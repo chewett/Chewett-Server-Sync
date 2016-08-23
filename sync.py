@@ -144,7 +144,7 @@ for host_backup_name in backup_details['ftp']:
 
 
     ftp = FTP(host_backup_info['host'], host_backup_info['user'], host_backup_info['password'])
-    #ftp.login()
+    #ftp.login() # FIXME: Look at why I dont want this
 
     ftp_root_dir = host_backup_info["directory"]
 
