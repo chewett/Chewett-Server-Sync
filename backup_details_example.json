@@ -4,7 +4,12 @@
         "host": "host",
         "user": "user",
         "password": "password",
-        "schema": "schema"
+        "schema": "schema",
+        "table_whitelist": [
+          "whitlistA",
+          "whitelistB"
+        ],
+        "store_location": "C:\\something..."
       }
   },
   "ftp": {
@@ -19,8 +24,10 @@
     "chewett": {
       "host": "hostname",
       "user": "username",
-      "directory": "~/*",
-      "keyfile": "keyfile"
+      "directory": "~/",
+      "keyfile": "keyfile",
+      "store_location": "C:\\something...",
+      "rsync_options": "--exclude={\"/dev/*\",\"/proc/*\",\"/sys/*\",\"/tmp/*\",\"/run/*\",\"/mnt/*\",\"/media/*\",\"/lost+found\"}"
     }
   }
 }

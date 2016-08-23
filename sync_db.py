@@ -9,13 +9,14 @@ import uuid
 from ftplib import FTP
 import ftplib
 import re
+import BackupFileManager as BFM
 
 backup_detail_file = open("backup_details.json", "r")
 backup_details = json.load(backup_detail_file)
 
 DB_DUMP_LOC = "dbs"
 FTP_DUMP_LOC = "ftps"
-RSYNC_DUMP_LOC = "rsync"
+RSYNC_DUMP_LOC = "./rsync"
 
 print backup_details
 
@@ -45,10 +46,14 @@ for db_backup_name in backup_details['dbs']:
         print "Whitelist ran: " + str(len(new_tables)) + " tables to download after processing whitelist, " + str(len(tables) - len(new_tables)) + " tables filtered out"
         tables = new_tables
 
-    if not os.path.isdir(DB_DUMP_LOC):
-        os.mkdir(DB_DUMP_LOC)
+    if "store_location" in host_backup_info:
+        backup_location = os.path.join(host_backup_info['store_location'])
+    else:
+        if not os.path.isdir(DB_DUMP_LOC):
+            os.mkdir(DB_DUMP_LOC)
 
-    backup_location = os.path.join(DB_DUMP_LOC, db_backup_name)
+        backup_location = os.path.join(DB_DUMP_LOC, db_backup_name)
+
     if not os.path.isdir(backup_location):
         os.mkdir(backup_location)
 
@@ -63,7 +68,7 @@ for db_backup_name in backup_details['dbs']:
         shutil.rmtree(download_loc)
         os.mkdir(download_loc)
 
-    day_filename = time.strftime(db_backup_name + "_day_%Y_%m_%d.tgz")
+    day_filename = BFM.get_day_filename(db_backup_name)
     week_filename = time.strftime(db_backup_name + "_week_%Y_%U.tgz")
     month_filename = time.strftime(db_backup_name + "_month_%Y_%m.tgz")
 
@@ -172,10 +177,14 @@ for host_backup_name in backup_details['ftp']:
 for rsync_backup_name in backup_details['rsync']:
     rsync_backup_info = backup_details['rsync'][rsync_backup_name]
 
-    if not os.path.isdir(RSYNC_DUMP_LOC):
-        os.mkdir(RSYNC_DUMP_LOC)
+    if "store_location" in rsync_backup_info:
+        backup_location = rsync_backup_info['store_location']
+    else:
+        if not os.path.isdir(RSYNC_DUMP_LOC):
+            os.mkdir(RSYNC_DUMP_LOC)
 
-    backup_location = os.path.join(RSYNC_DUMP_LOC, rsync_backup_name)
+        backup_location = os.path.join(RSYNC_DUMP_LOC, rsync_backup_name)
+
     if not os.path.isdir(backup_location):
         os.mkdir(backup_location)
 
@@ -183,12 +192,16 @@ for rsync_backup_name in backup_details['rsync']:
     if not os.path.isdir(rsync_download_loc):
         os.mkdir(rsync_download_loc)
 
-    command = "rsync -rthvz -e 'ssh -i " + rsync_backup_info['keyfile'] + "' " +\
-        rsync_backup_info['user'] + "@" + rsync_backup_info['host'] + ":" + rsync_backup_info['directory'] +\
-        " ./" + rsync_download_loc
+    if "rsync_options" in rsync_backup_info:
+        rsync_options = rsync_backup_info['rsync_options']
+    else:
+        rsync_options = "" #by default, no more
+
+    command = "rsync -rthvz --delete " + rsync_options + " -e 'ssh -i " + rsync_backup_info['keyfile'] + "' " +\
+        rsync_backup_info['user'] + "@" + rsync_backup_info['host'] + ":" + rsync_backup_info['directory'] + " ."
 
     print command
-    subprocess.call(command, shell=True)
+    subprocess.call(command, shell=True, cwd=rsync_download_loc) #move to the directory and tell rsync to download to that location
 
     day_filename = time.strftime(rsync_backup_name + "_day_%Y_%m_%d.tgz")
     week_filename = time.strftime(rsync_backup_name + "_week_%Y_%U.tgz")
