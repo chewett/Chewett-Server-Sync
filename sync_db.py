@@ -69,8 +69,8 @@ for db_backup_name in backup_details['dbs']:
         os.mkdir(download_loc)
 
     day_filename = BFM.get_day_filename(db_backup_name)
-    week_filename = time.strftime(db_backup_name + "_week_%Y_%U.tgz")
-    month_filename = time.strftime(db_backup_name + "_month_%Y_%m.tgz")
+    week_filename = BFM.get_week_filename(db_backup_name)
+    month_filename = BFM.get_month_filename(db_backup_name)
 
     day_backup_loc = os.path.join(backup_location, "day")
     if not os.path.isdir(day_backup_loc):
@@ -203,9 +203,9 @@ for rsync_backup_name in backup_details['rsync']:
     print command
     subprocess.call(command, shell=True, cwd=rsync_download_loc) #move to the directory and tell rsync to download to that location
 
-    day_filename = time.strftime(rsync_backup_name + "_day_%Y_%m_%d.tgz")
-    week_filename = time.strftime(rsync_backup_name + "_week_%Y_%U.tgz")
-    month_filename = time.strftime(rsync_backup_name + "_month_%Y_%m.tgz")
+    day_filename = BFM.get_day_filename(rsync_backup_name)
+    week_filename = BFM.get_week_filename(rsync_backup_name)
+    month_filename = BFM.get_month_filename(rsync_backup_name)
 
     day_backup_loc = os.path.join(backup_location, "day")
     if not os.path.isdir(day_backup_loc):
