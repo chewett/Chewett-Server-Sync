@@ -23,6 +23,11 @@ This allows backing up of servers via FTP and rsync for filesystems
 * All backup methods
     * Only store X backups per day/week/month
     * zipping instead of gzip
+    * Specify storing X size of data backups and deleting after reaching X size
+    * Standardize backup methods to reduce code footprint and duplication
+    * Comment files
+    * Print out correct progress for all functions
+    * Move functions into functions rather than being a big long script
 
 * Database features
     * Blacklisting of tables
