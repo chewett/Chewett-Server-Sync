@@ -72,9 +72,8 @@ for db_backup_name in backup_details['dbs']:
     week_filename = BFM.get_week_filename(db_backup_name)
     month_filename = BFM.get_month_filename(db_backup_name)
 
-    day_backup_loc = os.path.join(backup_location, "day")
-    if not os.path.isdir(day_backup_loc):
-        os.mkdir(day_backup_loc)
+    BFM.create_day_week_month_dirs(backup_location)
+    day_backup_loc = BFM.get_day_backup_location(backup_location)
 
     day_backup = os.path.join(day_backup_loc, day_filename)
     if not os.path.isfile(day_backup):
@@ -82,9 +81,7 @@ for db_backup_name in backup_details['dbs']:
     else:
         copy_day_file = False
 
-    week_backup_loc = os.path.join(backup_location, "week")
-    if not os.path.isdir(week_backup_loc):
-        os.mkdir(week_backup_loc)
+    week_backup_loc = BFM.get_week_backup_location(backup_location)
 
     week_backup = os.path.join(week_backup_loc, week_filename)
     if not os.path.isfile(week_backup):
@@ -92,9 +89,7 @@ for db_backup_name in backup_details['dbs']:
     else:
         copy_week_file = False
 
-    month_backup_loc = os.path.join(backup_location, "month")
-    if not os.path.isdir(month_backup_loc):
-        os.mkdir(month_backup_loc )
+    month_backup_loc = BFM.get_month_backup_location(backup_location)
 
     month_backup = os.path.join(month_backup_loc, month_filename)
     if not os.path.isfile(month_backup):
@@ -207,37 +202,13 @@ for rsync_backup_name in backup_details['rsync']:
     week_filename = BFM.get_week_filename(rsync_backup_name)
     month_filename = BFM.get_month_filename(rsync_backup_name)
 
-    day_backup_loc = os.path.join(backup_location, "day")
-    if not os.path.isdir(day_backup_loc):
-        os.mkdir(day_backup_loc)
+    BFM.create_day_week_month_dirs(backup_location)
 
-    day_backup = os.path.join(day_backup_loc, day_filename)
-    if not os.path.isfile(day_backup):
-        copy_day_file = True
-    else:
-        copy_day_file = False
+    day_backup_loc = BFM.get_day_backup_location(backup_location)
 
-    week_backup_loc = os.path.join(backup_location, "week")
-    if not os.path.isdir(week_backup_loc):
-        os.mkdir(week_backup_loc)
+    backups_needed = BFM.backups_need_update(backup_location, rsync_backup_name)
 
-    week_backup = os.path.join(week_backup_loc, week_filename)
-    if not os.path.isfile(week_backup):
-        copy_week_file = True
-    else:
-        copy_week_file = False
-
-    month_backup_loc = os.path.join(backup_location, "month")
-    if not os.path.isdir(month_backup_loc):
-        os.mkdir(month_backup_loc)
-
-    month_backup = os.path.join(month_backup_loc, month_filename)
-    if not os.path.isfile(month_backup):
-        copy_month_file = True
-    else:
-        copy_month_file = False
-
-    if copy_day_file or copy_week_file or copy_month_file:
+    if backups_needed['day'] or backups_needed['week'] or backups_needed['month']:
         rsync_temp_loc = os.path.join(backup_location, "tmp")
         if not os.path.isdir(rsync_temp_loc):
             os.mkdir(rsync_temp_loc)
@@ -248,11 +219,13 @@ for rsync_backup_name in backup_details['rsync']:
             for name in os.listdir(rsync_download_loc):
                 tar.add(os.path.join(rsync_download_loc, name), name)
 
-        if copy_day_file:
-            shutil.copy(day_file_to_save, day_backup)
-        if copy_week_file:
+        if backups_needed['day']:
+            shutil.copy(day_file_to_save, BFM.get_)
+        if backups_needed['week']:
             shutil.copy(day_file_to_save, week_backup)
-        if copy_month_file:
+        if backups_needed['month']:
             shutil.copy(day_file_to_save, month_backup)
 
         os.unlink(day_file_to_save)
+    else:
+        print "No rsync needed as there are no backups"
