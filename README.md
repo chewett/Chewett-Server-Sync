@@ -4,13 +4,13 @@ Chewett Site Sync
 This allows backing up of servers via FTP and rsync for filesystems
  and mysqldump for databases.
  
-##Currently Impleneted
+##Currently Implemented
 
 
 * Downloading of mysql databases via mysql dump
     * Daily/weekly/monthly backups supported
     * Archiving of backups with gzip compression
-    * Whitelisting of tables to download via regexes
+    * Whitelisting of tables to download via regular expressions
 * FTP sync
     * Vaguely works
 * rsync
