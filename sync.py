@@ -222,10 +222,13 @@ for rsync_backup_name in backup_details['rsync']:
                 tar.add(os.path.join(rsync_download_loc, name), name)
 
         if backups_needed['day']:
-            shutil.copy(day_file_to_save, day_backup_loc)
+            day_backup = os.path.join(day_backup_loc, day_filename)
+            shutil.copy(day_file_to_save, day_backup)
         if backups_needed['week']:
+            week_backup = os.path.join(week_backup_loc, week_filename)
             shutil.copy(day_file_to_save, week_backup_loc)
         if backups_needed['month']:
+            month_backup = os.path.join(month_backup_loc, month_filename)
             shutil.copy(day_file_to_save, month_backup_loc)
 
         os.unlink(day_file_to_save)
