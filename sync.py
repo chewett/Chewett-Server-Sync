@@ -205,6 +205,8 @@ for rsync_backup_name in backup_details['rsync']:
     BFM.create_day_week_month_dirs(backup_location)
 
     day_backup_loc = BFM.get_day_backup_location(backup_location)
+    week_backup_loc = BFM.get_week_backup_location(backup_location)
+    month_backup_loc = BFM.get_month_backup_location(backup_location)
 
     backups_needed = BFM.backups_need_update(backup_location, rsync_backup_name)
 
@@ -220,11 +222,11 @@ for rsync_backup_name in backup_details['rsync']:
                 tar.add(os.path.join(rsync_download_loc, name), name)
 
         if backups_needed['day']:
-            shutil.copy(day_file_to_save, BFM.get_)
+            shutil.copy(day_file_to_save, day_backup_loc)
         if backups_needed['week']:
-            shutil.copy(day_file_to_save, week_backup)
+            shutil.copy(day_file_to_save, week_backup_loc)
         if backups_needed['month']:
-            shutil.copy(day_file_to_save, month_backup)
+            shutil.copy(day_file_to_save, month_backup_loc)
 
         os.unlink(day_file_to_save)
     else:
