@@ -1,33 +1,42 @@
 {
-  "dbs": {
-      "place1": {
-        "host": "host",
-        "user": "user",
-        "password": "password",
-        "schema": "schema",
-        "table_whitelist": [
-          "whitlistA",
-          "whitelistB"
-        ],
-        "store_location": "C:\\something..."
-      }
-  },
-  "ftp": {
-      "place2": {
-        "host": "host",
-        "user": "user",
-        "password": "password",
-        "directory": "directory"
-      }
-  },
-  "rsync": {
-    "chewett": {
-      "host": "hostname",
-      "user": "username",
-      "directory": "~/",
-      "keyfile": "keyfile",
-      "store_location": "C:\\something...",
-      "rsync_options": "--exclude={\"/dev/*\",\"/proc/*\",\"/sys/*\",\"/tmp/*\",\"/run/*\",\"/mnt/*\",\"/media/*\",\"/lost+found\"}"
+    "dbs": {
+        "place1": {
+            "host": "host",
+            "user": "user",
+            "password": "password",
+            "schema": "schema",
+            "table_whitelist": [
+                "whitlistA",
+                "whitelistB"
+            ],
+            "store_location": "C:\\something...",
+            "daily_backups": -1,
+            "weekly_backups": -1,
+            "monthly_backups": -1
+        }
+    },
+    "ftp": {
+        "place2": {
+            "host": "host",
+            "user": "user",
+            "password": "password",
+            "directory": "directory",
+            "daily_backups": -1,
+            "weekly_backups": -1,
+            "monthly_backups": -1
+        }
+    },
+    "rsync": {
+        "chewett": {
+            "host": "hostname",
+            "user": "username",
+            "directory": "~/",
+            "keyfile": "keyfile",
+            "store_location": "C:\\something...",
+            "rsync_options": "--exclude={\"/dev/*\",\"/proc/*\",\"/sys/*\",\"/tmp/*\",\"/run/*\",\"/mnt/*\",\"/media/*\",\"/lost+found\"}",
+            "daily_backups": -1,
+            "weekly_backups": -1,
+            "monthly_backups": -1
+        }
     }
-  }
 }
