@@ -10,13 +10,14 @@ class BackupFileManager:
     '''
         backup_filetype = ["tgz", ""]
     '''
-    def __init__(self, backup_name, backup_location, backup_filetype, daily_num, weekly_num, monthly_num):
+    def __init__(self, backup_name, backup_location, backup_filetype, daily_num, weekly_num, monthly_num, current_folder_needed=False):
         self.backup_name = backup_name
         self.backup_location = backup_location
         self.backup_filetype = backup_filetype
         self.daily_num = daily_num
         self.weekly_num = weekly_num
         self.monthly_num = monthly_num
+        self.current_folder_needed = current_folder_needed
 
     def get_backup_file_extension(self):
         if self.backup_filetype == "tgz":
@@ -104,6 +105,9 @@ class BackupFileManager:
     def get_month_filelocation(self):
         return time.strftime(self.backup_name + "_month_%Y_%m" + self.get_backup_file_extension())
 
+    def get_current_location(self):
+        return os.path.join(self.backup_location, "current")
+
     def get_tmp_location(self):
         return os.path.join(self.backup_location, "tmp")
 
@@ -128,6 +132,8 @@ class BackupFileManager:
     def create_all_needed_dirs(self):
         locations_to_create = [self.backup_location, self.get_tmp_location()]
 
+        if self.current_folder_needed:
+            locations_to_create.append(self.get_current_location())
         if self.daily_num:
             locations_to_create.append(self.get_day_backup_location())
         if self.weekly_num:
