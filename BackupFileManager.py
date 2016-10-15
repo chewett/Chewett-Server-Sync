@@ -35,7 +35,7 @@ class BackupFileManager:
             shutil.copy(backup_file, full_day_path)
 
         if backups_needed['week']:
-            full_week_path = self.get_month_full_path()
+            full_week_path = self.get_week_full_path()
             print "Copying backup file to week path"
             print "cp " + backup_file + " " + full_week_path
             shutil.copy(backup_file, full_week_path)

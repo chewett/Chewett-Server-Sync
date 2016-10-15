@@ -17,7 +17,7 @@ class RsyncBackupManager:
         self.backup_name = backup_name
 
         if "store_location" in backup_config:
-            backup_location = os.path.join(backup_config['store_location'])
+            backup_location = backup_config['store_location']
         else:
             backup_location = os.path.join(RsyncBackupManager.RSYNC_DUMP_LOC, self.backup_name)
 
