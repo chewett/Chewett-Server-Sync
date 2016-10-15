@@ -112,11 +112,15 @@ class DBBackupManager:
                         tar.add(os.path.join(my_download_loc, name), name)
 
                 self.backup_file_manager.create_backups_as_needed(tarfile_location)
+                print "removing temporary tarred file"
+                print "rm " + tarfile_location
                 os.unlink(tarfile_location)
 
             else:
                 exit("No support for anything else atm :(")
 
+            print "removing download directory"
+            print "rm -rf " + my_download_loc
             shutil.rmtree(my_download_loc)
             print "Finished database backup"
 

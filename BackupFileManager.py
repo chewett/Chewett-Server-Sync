@@ -1,6 +1,9 @@
 import os
 import time
 import shutil
+import glob
+import re
+
 
 class BackupFileManager:
 
@@ -41,6 +44,56 @@ class BackupFileManager:
             print "Copying backup file to month path"
             print "cp " + backup_file + " " + full_month_path
             shutil.copy(backup_file, full_month_path)
+
+        self.manage_previous_backups()
+
+    def manage_previous_backups(self):
+        if self.daily_num and self.daily_num != -1:
+            day_glob_filename = os.path.join(self.get_day_backup_location(),
+                                              self.backup_name + "_day_*" + self.get_backup_file_extension())
+
+            day_files = glob.glob(day_glob_filename)
+            day_files.sort()
+            if len(day_files) > self.daily_num:
+                num_to_remove = len(day_files) - self.daily_num
+                for i in xrange(num_to_remove):
+                    file_path_to_remove = day_files[i]
+                    print "Removing file due to number of archives exceeded" + file_path_to_remove
+                    self.remove_backup(file_path_to_remove)
+
+
+        if self.weekly_num and self.weekly_num != -1:
+            week_glob_filename = os.path.join(self.get_week_backup_location(),
+                                             self.backup_name + "_week_*" + self.get_backup_file_extension())
+
+            week_files = glob.glob(week_glob_filename)
+            week_files.sort()
+            if len(week_files) > self.weekly_num:
+                num_to_remove = len(week_files) - self.weekly_num
+                for i in xrange(num_to_remove):
+                    file_path_to_remove = week_files[i]
+                    print "Removing file due to number of archives exceeded" + file_path_to_remove
+                    self.remove_backup(file_path_to_remove)
+
+        if self.monthly_num and self.monthly_num != -1:
+            month_glob_filename = os.path.join(self.get_month_backup_location(),
+                                             self.backup_name + "_month_*" + self.get_backup_file_extension())
+
+            month_files = glob.glob(month_glob_filename)
+            month_files.sort()
+            if len(month_files) > self.monthly_num:
+                num_to_remove = len(month_files) - self.monthly_num
+                for i in xrange(num_to_remove):
+                    file_path_to_remove = month_files[i]
+                    print "Removing file due to number of archives exceeded" + file_path_to_remove
+                    self.remove_backup(file_path_to_remove)
+
+    def remove_backup(self, path):
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+            os.unlink(path)
+        else:
+            os.unlink(path)
 
     def get_day_filelocation(self):
         return time.strftime(self.backup_name + "_day_%Y_%m_%d" + self.get_backup_file_extension())
