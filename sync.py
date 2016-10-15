@@ -9,8 +9,6 @@ backup_details = json.load(backup_detail_file)
 FTP_DUMP_LOC = "ftps"
 RSYNC_DUMP_LOC = "./rsync"
 
-print backup_details
-
 for db_backup_name in backup_details['dbs']:
     db_backup = DBBackupManager(db_backup_name, backup_details['dbs'][db_backup_name])
     db_backup.backup()
