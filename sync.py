@@ -11,7 +11,11 @@ RSYNC_DUMP_LOC = "./rsync"
 
 for db_backup_name in backup_details['dbs']:
     db_backup = DBBackupManager(db_backup_name, backup_details['dbs'][db_backup_name])
-    db_backup.backup()
+    try:
+        db_backup.backup()
+    except Exception as e:
+        print "Failed to run backup on", db_backup_name
+        print e
 
 for host_backup_name in backup_details['ftp']:
     ftp_backup = FTPBackupManager(host_backup_name, backup_details['ftp'][host_backup_name])
