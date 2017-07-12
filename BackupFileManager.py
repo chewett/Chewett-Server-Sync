@@ -143,7 +143,7 @@ class BackupFileManager:
 
         for loc in locations_to_create:
             if not os.path.isdir(loc):
-                os.mkdir(loc)
+                os.makedirs(loc)
 
     def backup_needed(self):
         all_backups_needed = self.backups_need_update()
