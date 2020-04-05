@@ -3,8 +3,8 @@ Chewett Site Sync
 
 This allows backing up of servers via FTP and rsync for filesystems
  and mysqldump for databases.
- 
-##Currently Implemented
+
+# Currently Implemented
 
 
 * Downloading of mysql databases via mysql dump
@@ -18,7 +18,7 @@ This allows backing up of servers via FTP and rsync for filesystems
     * Archiving of backups with gzip compression
     * Specify rsync flags
     
-##Todo
+# Todo
 
 * All backup methods
     * Only store X backups per day/week/month
@@ -40,3 +40,12 @@ This allows backing up of servers via FTP and rsync for filesystems
     * Possibly rsync style copy via local cache?
 * rsync
     * Specify all flags
+
+# Requirements
+
+* python2
+* python-mysql
+
+# Config file format
+
+TODO
