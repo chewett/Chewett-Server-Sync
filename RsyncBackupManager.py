@@ -29,6 +29,8 @@ class RsyncBackupManager:
 
         if "keyfile" in backup_config:
             self.keyfile = backup_config["keyfile"]
+        else:
+            self.keyfile = None
 
         if "directory" in backup_config:
             self.directory = backup_config["directory"]
@@ -69,8 +71,12 @@ class RsyncBackupManager:
             print("Backup is needed, starting to download")
             self.backup_file_manager.create_all_needed_dirs()
 
+            keyfile_cmd = ""
+            if self.keyfile is not None:
+                keyfile_cmd = " -i " + self.keyfile
+
             rsync_download_loc = self.backup_file_manager.get_current_location()
-            command = "rsync -rthvz --delete " + self.rsync_options + " -e 'ssh -i " + self.keyfile + "' " + \
+            command = "rsync -rthvz --delete " + self.rsync_options + " -e 'ssh" + keyfile_cmd + "' " + \
                       self.user + "@" + self.host + ":" + self.directory + " ."
 
             print(command)
