@@ -1,4 +1,3 @@
-from WookieDb import WookieDb
 import re
 import os
 import uuid
@@ -12,7 +11,6 @@ class DBBackupManager:
     DB_DUMP_LOCATION = "dbs"
 
     def __init__(self, backup_name, backup_config):
-        print backup_name
         self.backup_name = backup_name
 
         if "host" in backup_config:
@@ -68,13 +66,13 @@ class DBBackupManager:
 
     def backup(self):
         if self.backup_file_manager.backup_needed():
-            print "Backup is needed, starting to download"
+            print("Backup is needed, starting to download")
             self.backup_file_manager.create_all_needed_dirs()
 
             db = WookieDb.WookieDb(host=self.host, user=self.user, password=self.password, db=self.schema)
 
             tables = [t[0] for t in db.show_tables()]
-            print "Found " + str(len(tables)) + " tables"
+            print("Found " + str(len(tables)) + " tables")
 
             if self.table_whitelist:
                 new_tables = []
@@ -89,8 +87,8 @@ class DBBackupManager:
                     if add_table:
                         new_tables.append(table)
 
-                print "Whitelist ran: " + str(len(new_tables)) + " tables to download after processing whitelist, " + str(
-                    len(tables) - len(new_tables)) + " tables filtered out"
+                print("Whitelist ran: " + str(len(new_tables)) + " tables to download after processing whitelist, " + str(
+                    len(tables) - len(new_tables)) + " tables filtered out")
                 tables = new_tables
 
             tmp_download_loc = self.backup_file_manager.get_tmp_location()
@@ -103,26 +101,26 @@ class DBBackupManager:
                 os.mkdir(my_download_loc)
 
             db.dump_tables(tables, my_download_loc)
-            print "Finished database dump"
+            print("Finished database dump")
             if self.backup_format == "tgz":
-                print "Gzipping database tables"
+                print("Gzipping database tables")
                 tarfile_location = my_download_loc + ".tgz"
                 with tarfile.open(tarfile_location, "w:gz") as tar:
                     for name in os.listdir(my_download_loc):
                         tar.add(os.path.join(my_download_loc, name), name)
 
                 self.backup_file_manager.create_backups_as_needed(tarfile_location)
-                print "removing temporary tarred file"
-                print "rm " + tarfile_location
+                print("removing temporary tarred file")
+                print("rm " + tarfile_location)
                 os.unlink(tarfile_location)
 
             else:
                 exit("No support for anything else atm :(")
 
-            print "removing download directory"
-            print "rm -rf " + my_download_loc
+            print("removing download directory")
+            print("rm -rf " + my_download_loc)
             shutil.rmtree(my_download_loc)
-            print "Finished database backup"
+            print("Finished database backup")
 
         else:
-            print "No backup needed, doing nothing!"
+            print("No backup needed, doing nothing!")

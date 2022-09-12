@@ -30,20 +30,20 @@ class BackupFileManager:
 
         if backups_needed['day']:
             full_day_path = self.get_day_full_path()
-            print "Copying backup file to day path"
-            print "cp " + backup_file + " " + full_day_path
+            print("Copying backup file to day path")
+            print("cp " + backup_file + " " + full_day_path)
             shutil.copy(backup_file, full_day_path)
 
         if backups_needed['week']:
             full_week_path = self.get_week_full_path()
-            print "Copying backup file to week path"
-            print "cp " + backup_file + " " + full_week_path
+            print("Copying backup file to week path")
+            print("cp " + backup_file + " " + full_week_path)
             shutil.copy(backup_file, full_week_path)
 
         if backups_needed['month']:
             full_month_path = self.get_month_full_path()
-            print "Copying backup file to month path"
-            print "cp " + backup_file + " " + full_month_path
+            print("Copying backup file to month path")
+            print("cp " + backup_file + " " + full_month_path)
             shutil.copy(backup_file, full_month_path)
 
         self.manage_previous_backups()
@@ -57,9 +57,9 @@ class BackupFileManager:
             day_files.sort()
             if len(day_files) > self.daily_num:
                 num_to_remove = len(day_files) - self.daily_num
-                for i in xrange(num_to_remove):
+                for i in range(num_to_remove):
                     file_path_to_remove = day_files[i]
-                    print "Removing file due to number of archives exceeded" + file_path_to_remove
+                    print("Removing file due to number of archives exceeded" + file_path_to_remove)
                     self.remove_backup(file_path_to_remove)
 
 
@@ -71,9 +71,9 @@ class BackupFileManager:
             week_files.sort()
             if len(week_files) > self.weekly_num:
                 num_to_remove = len(week_files) - self.weekly_num
-                for i in xrange(num_to_remove):
+                for i in range(num_to_remove):
                     file_path_to_remove = week_files[i]
-                    print "Removing file due to number of archives exceeded" + file_path_to_remove
+                    print("Removing file due to number of archives exceeded" + file_path_to_remove)
                     self.remove_backup(file_path_to_remove)
 
         if self.monthly_num and self.monthly_num != -1:
@@ -84,9 +84,9 @@ class BackupFileManager:
             month_files.sort()
             if len(month_files) > self.monthly_num:
                 num_to_remove = len(month_files) - self.monthly_num
-                for i in xrange(num_to_remove):
+                for i in range(num_to_remove):
                     file_path_to_remove = month_files[i]
-                    print "Removing file due to number of archives exceeded" + file_path_to_remove
+                    print("Removing file due to number of archives exceeded" + file_path_to_remove)
                     self.remove_backup(file_path_to_remove)
 
     def remove_backup(self, path):

@@ -11,7 +11,7 @@ class FTPBackupManager:
     FTP_DUMP_LOC = "ftp"
 
     def __init__(self, backup_name, backup_config):
-        print backup_name
+        print(backup_name)
         self.backup_name = backup_name
         self.backup_config = backup_config
 
@@ -49,19 +49,19 @@ class FTPBackupManager:
 
             ftp.cwd(folder)
             filelist = ftp.nlst()
-            print filelist
+            print(filelist)
 
             for file in filelist:
                 try:
                     # this will check if file is folder:
                     ftp.cwd(folder + file + "/")
-                    print "folder: " + file
+                    print("folder: " + file)
                     folders_to_search.append(folder + file + "/")
                 except ftplib.error_perm:
-                    print "file: " + folder + file
+                    print("file: " + folder + file)
                     files_to_download.append((folder + file, os.path.join(download_loc, file)))
 
-        print files_to_download
+        print(files_to_download)
 
         # ftp.retrbinary("RETR " + ftp_cur_dir + file, open(os.path.join(download_loc, file), "wb").write)
 

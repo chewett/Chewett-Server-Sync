@@ -13,7 +13,7 @@ class RsyncBackupManager:
     def __init__(self, backup_name, backup_config):
         self.backup_name = backup_name
 
-        print backup_name
+        print(backup_name)
         self.backup_name = backup_name
 
         if "store_location" in backup_config:
@@ -66,35 +66,35 @@ class RsyncBackupManager:
 
     def backup(self):
         if self.backup_file_manager.backup_needed():
-            print "Backup is needed, starting to download"
+            print("Backup is needed, starting to download")
             self.backup_file_manager.create_all_needed_dirs()
 
             rsync_download_loc = self.backup_file_manager.get_current_location()
             command = "rsync -rthvz --delete " + self.rsync_options + " -e 'ssh -i " + self.keyfile + "' " + \
                       self.user + "@" + self.host + ":" + self.directory + " ."
 
-            print command
+            print(command)
             subprocess.call(command, shell=True,
                             cwd=rsync_download_loc)  # move to the directory and tell rsync to download to that location
-            print "Finished rsync copy"
+            print("Finished rsync copy")
 
             rsync_temp_loc = self.backup_file_manager.get_tmp_location()
             if self.backup_format == "tgz":
                 rsync_temp_filename = os.path.join(rsync_temp_loc, uuid.uuid4().hex + ".tgz")
-                print "Gzipping rsync files"
+                print("Gzipping rsync files")
                 with tarfile.open(rsync_temp_filename, "w:gz") as tar:
                     for name in os.listdir(rsync_download_loc):
                         tar.add(os.path.join(rsync_download_loc, name), name)
 
                 self.backup_file_manager.create_backups_as_needed(rsync_temp_filename)
 
-                print "Removing temporary gzipped file"
-                print "rm " + rsync_temp_filename
+                print("Removing temporary gzipped file")
+                print("rm " + rsync_temp_filename)
                 os.unlink(rsync_temp_filename)
-                print "Finished filesystem backup"
+                print("Finished filesystem backup")
 
             else:
                 exit("No support for anything else atm :(")
 
         else:
-            print "No backup needed, doing nothing!"
+            print("No backup needed, doing nothing!")

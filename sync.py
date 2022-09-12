@@ -15,8 +15,8 @@ if "dbs" in backup_details:
         try:
             db_backup.backup()
         except Exception as e:
-            print "Failed to run backup on", db_backup_name
-            print e
+            print("Failed to run backup on", db_backup_name)
+            print(e)
 
 if "ftp" in backup_details:
     for host_backup_name in backup_details['ftp']:
