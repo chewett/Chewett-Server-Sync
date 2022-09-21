@@ -4,14 +4,18 @@ import uuid
 import shutil
 import BackupFileManager as BFM
 import tarfile
+import mysql.connector
+import sshtunnel
+import MysqldumpWrapper
 
 
 class DBBackupManager:
 
     DB_DUMP_LOCATION = "dbs"
 
-    def __init__(self, backup_name, backup_config):
+    def __init__(self, backup_name, backup_config, mysqldump_location):
         self.backup_name = backup_name
+        self.mysql_dump_wrapper = MysqldumpWrapper.MysqldumpWrapper(mysqldump_location)
 
         if "host" in backup_config:
             self.host = backup_config["host"]
@@ -30,6 +34,11 @@ class DBBackupManager:
 
         if "schema" in backup_config:
             self.schema = backup_config["schema"]
+
+        if "port" in backup_config:
+            self.port = backup_config["port"]
+        else:
+            self.port = 3306
 
         if "store_location" in backup_config:
             backup_location = os.path.join(backup_config['store_location'])
@@ -64,14 +73,40 @@ class DBBackupManager:
         else:
             self.table_whitelist = None
 
+        self.use_ssh = False
+        if "ssh_host" in backup_config and "ssh_user" in backup_config and "ssh_keyfile" in backup_config and "ssh_port" in backup_config:
+            self.use_ssh = True
+            self.ssh_host = backup_config['ssh_host']
+            self.ssh_user = backup_config['ssh_user']
+            self.ssh_port = backup_config['ssh_port']
+            self.ssh_keyfile = backup_config['ssh_keyfile']
+
     def backup(self):
         if self.backup_file_manager.backup_needed():
             print("Backup is needed, starting to download")
             self.backup_file_manager.create_all_needed_dirs()
 
-            db = WookieDb.WookieDb(host=self.host, user=self.user, password=self.password, db=self.schema)
+            local_port_to_use = self.port
+            if self.use_ssh:
+                tunnel = sshtunnel.SSHTunnelForwarder((self.ssh_host, self.ssh_port), ssh_pkey=self.ssh_keyfile, ssh_username=self.ssh_user,
+                                            remote_bind_address=("127.0.0.1", self.port))
+                tunnel.start()
 
-            tables = [t[0] for t in db.show_tables()]
+                db = mysql.connector.MySQLConnection(
+                    user=self.user,
+                    password=self.password,
+                    host="127.0.0.1",
+                    database=self.schema,
+                    port=tunnel.local_bind_port)
+
+                local_port_to_use = tunnel.local_bind_port
+
+            else:
+                db = mysql.connector.connect(host=self.host, user=self.user, password=self.password, db=self.schema)
+
+            c = db.cursor()
+            c.execute("SHOW TABLES")
+            tables = [t[0] for t in c.fetchall()]
             print("Found " + str(len(tables)) + " tables")
 
             if self.table_whitelist:
@@ -100,7 +135,8 @@ class DBBackupManager:
                 shutil.rmtree(my_download_loc)
                 os.mkdir(my_download_loc)
 
-            db.dump_tables(tables, my_download_loc)
+            self.mysql_dump_wrapper.dump_tables_to_file(self.host, local_port_to_use, self.user, self.password, self.schema, tables, my_download_loc)
+
             print("Finished database dump")
             if self.backup_format == "tgz":
                 print("Gzipping database tables")

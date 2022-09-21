@@ -1,4 +1,7 @@
 {
+    "settings": {
+        "mysqldump": "mysqldump"
+    },
     "dbs": {
         "place1": {
             "host": "host",
@@ -10,6 +13,21 @@
                 "whitelistB"
             ],
             "store_location": "C:\\something...",
+            "daily_backups": -1,
+            "weekly_backups": -1,
+            "monthly_backups": -1
+        },
+        "place2": {
+            "ssh_host": "host",
+            "ssh_user": "user",
+            "ssh_keyfile": "keyfile",
+            "ssh_port": 34974,
+            "host": "host",
+            "user": "user",
+            "password": "password",
+            "schema": "schema",
+            "port": 3306,
+            "store_location": "db/something...",
             "daily_backups": -1,
             "weekly_backups": -1,
             "monthly_backups": -1
