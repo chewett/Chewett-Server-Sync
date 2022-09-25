@@ -1,9 +1,12 @@
+#! /usr/bin/env python3
+
+import os
 import json
 from DBBackupManager import DBBackupManager
 from FTPBackupManager import FTPBackupManager
 from RsyncBackupManager import RsyncBackupManager
 
-backup_detail_file = open("backup_details.json", "r")
+backup_detail_file = open(os.path.join(os.path.dirname(__file__), "backup_details.json"), "r")
 backup_details = json.load(backup_detail_file)
 
 FTP_DUMP_LOC = "ftps"
