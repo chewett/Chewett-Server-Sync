@@ -9,8 +9,6 @@ from RsyncBackupManager import RsyncBackupManager
 backup_detail_file = open(os.path.join(os.path.dirname(__file__), "backup_details.json"), "r")
 backup_details = json.load(backup_detail_file)
 
-FTP_DUMP_LOC = "ftps"
-RSYNC_DUMP_LOC = "./rsync"
 
 if "dbs" in backup_details:
     for db_backup_name in backup_details['dbs']:
