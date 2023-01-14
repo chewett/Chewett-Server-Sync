@@ -10,10 +10,9 @@ class RsyncBackupManager:
 
     RSYNC_DUMP_LOC = "rsync"
 
-    def __init__(self, backup_name, backup_config):
+    def __init__(self, backup_name, backup_config, general_settings):
         self.backup_name = backup_name
 
-        print(backup_name)
         self.backup_name = backup_name
 
         if "store_location" in backup_config:
@@ -64,6 +63,11 @@ class RsyncBackupManager:
                                                          self.daily_backups, self.weekly_backups, self.monthly_backups,
                                                          current_folder_needed=True)
 
+        if 'tmp_folder' in general_settings:
+            self.tmp_folder = general_settings['tmp_folder']
+        else:
+            self.tmp_folder = self.backup_file_manager.get_tmp_location()
+
 
 
     def backup(self):
@@ -84,9 +88,8 @@ class RsyncBackupManager:
                             cwd=rsync_download_loc)  # move to the directory and tell rsync to download to that location
             print("Finished rsync copy")
 
-            rsync_temp_loc = self.backup_file_manager.get_tmp_location()
             if self.backup_format == "tgz":
-                rsync_temp_filename = os.path.join(rsync_temp_loc, uuid.uuid4().hex + ".tgz")
+                rsync_temp_filename = os.path.join(self.tmp_folder, uuid.uuid4().hex + ".tgz")
                 print("Gzipping rsync files")
                 with tarfile.open(rsync_temp_filename, "w:gz") as tar:
                     for name in os.listdir(rsync_download_loc):

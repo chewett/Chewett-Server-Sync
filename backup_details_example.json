@@ -1,6 +1,7 @@
 {
     "settings": {
-        "mysqldump": "mysqldump"
+        "mysqldump": "mysqldump",
+        "tmp_folder": "tmp"
     },
     "dbs": {
         "place1": {

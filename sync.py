@@ -14,7 +14,7 @@ RSYNC_DUMP_LOC = "./rsync"
 
 if "dbs" in backup_details:
     for db_backup_name in backup_details['dbs']:
-        db_backup = DBBackupManager(db_backup_name, backup_details['dbs'][db_backup_name], backup_details['settings']['mysqldump'])
+        db_backup = DBBackupManager(db_backup_name, backup_details['dbs'][db_backup_name], backup_details['settings'])
         try:
             db_backup.backup()
         except Exception as e:
@@ -29,6 +29,6 @@ if "ftp" in backup_details:
 
 if "rsync" in backup_details:
     for rsync_backup_name in backup_details['rsync']:
-        db_backup = RsyncBackupManager(rsync_backup_name, backup_details['rsync'][rsync_backup_name])
+        db_backup = RsyncBackupManager(rsync_backup_name, backup_details['rsync'][rsync_backup_name], backup_details['settings'])
         db_backup.backup()
 

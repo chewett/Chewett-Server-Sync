@@ -13,9 +13,9 @@ class DBBackupManager:
 
     DB_DUMP_LOCATION = "dbs"
 
-    def __init__(self, backup_name, backup_config, mysqldump_location):
+    def __init__(self, backup_name, backup_config, general_settings):
         self.backup_name = backup_name
-        self.mysql_dump_wrapper = MysqldumpWrapper.MysqldumpWrapper(mysqldump_location)
+        self.mysql_dump_wrapper = MysqldumpWrapper.MysqldumpWrapper(general_settings['mysqldump'])
 
         if "host" in backup_config:
             self.host = backup_config["host"]
@@ -67,6 +67,11 @@ class DBBackupManager:
 
         self.backup_file_manager = BFM.BackupFileManager(self.backup_name, backup_location, self.backup_format,
                                                          self.daily_backups, self.weekly_backups,self.monthly_backups)
+
+        if 'tmp_folder' in general_settings:
+            self.tmp_folder = general_settings['tmp_folder']
+        else:
+            self.tmp_folder = self.backup_file_manager.get_tmp_location()
 
         if "table_whitelist" in backup_config:
             self.table_whitelist = backup_config["table_whitelist"]
@@ -126,9 +131,7 @@ class DBBackupManager:
                     len(tables) - len(new_tables)) + " tables filtered out")
                 tables = new_tables
 
-            tmp_download_loc = self.backup_file_manager.get_tmp_location()
-
-            my_download_loc = os.path.join(tmp_download_loc, uuid.uuid4().hex)
+            my_download_loc = os.path.join(self.tmp_folder, uuid.uuid4().hex)
             if not os.path.isdir(my_download_loc):
                 os.mkdir(my_download_loc)
             else:
