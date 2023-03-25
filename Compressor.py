@@ -22,8 +22,10 @@ class Compressor:
 
         if self.method == "python":
             self._compress_python(location, real_output_file)
-        if self.method == "gzip":
+        elif self.method == "gzip":
             self._compress_gzip(location, real_output_file)
+        elif self.method == "pigz":
+            self._compress_pigz(location, real_output_file)
 
         else:
             raise Exception("Unsupported compression method")
@@ -43,5 +45,9 @@ class Compressor:
         loc_name = os.path.basename(location)
         run_command("tar zcf " + outputfile + " -C  " + loc_folder + " " + loc_name)
 
-
+    def _compress_pigz(self, location, outputfile):
+        print("Using OS tar with pigz for compression...")
+        loc_folder = os.path.dirname(location)
+        loc_name = os.path.basename(location)
+        run_command("tar --use-compress-program=\"pigz -k\" -cf " + outputfile + " -C  " + loc_folder + " " + loc_name)
 
