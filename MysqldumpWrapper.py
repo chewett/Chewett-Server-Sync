@@ -1,4 +1,5 @@
 import subprocess
+from CommandRunner import run_command
 import os
 import tempfile
 
@@ -31,10 +32,10 @@ class MysqldumpWrapper:
         for table in tables:
             table_file = os.path.join(backup_location, table + ".sql")
             command = self.mysql_dump_location + ' --defaults-file=' + tmpfile_path + ' --host=' + hostname + ' --protocol=tcp --user=' + user \
-                      + ' --lock-tables=FALSE --compress=TRUE --port=' + str(port_no) + ' --default-character-set=utf8 --skip-triggers "' + \
+                      + ' --lock-tables=FALSE --no-tablespaces --compress=TRUE --port=' + str(port_no) + ' --default-character-set=utf8 --skip-triggers "' + \
                       schema + '" "' + table + '" > "' + table_file + '"'
-            print(command)
-            subprocess.call(command, shell=True)
+
+            run_command(command)
 
             table_files.append(table_file)
 
