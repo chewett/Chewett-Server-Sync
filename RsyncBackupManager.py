@@ -1,9 +1,7 @@
 import os
-import subprocess
 from Compressor import Compressor
 import BackupFileManager as BFM
-import tarfile
-import shutil
+from CommandRunner import run_command
 import uuid
 
 
@@ -89,9 +87,8 @@ class RsyncBackupManager:
             command = "rsync -rthvz --delete " + self.rsync_options + " -e 'ssh" + keyfile_cmd + "' " + \
                       self.user + "@" + self.host + ":" + self.directory + " ."
 
-            print(command)
-            subprocess.call(command, shell=True,
-                            cwd=rsync_download_loc)  # move to the directory and tell rsync to download to that location
+            # move to the directory and tell rsync to download to that location
+            run_command(command, cwd=rsync_download_loc)
             print("Finished rsync copy")
 
             if self.backup_format == "tgz":
