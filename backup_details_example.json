@@ -1,7 +1,8 @@
 {
     "settings": {
         "mysqldump": "mysqldump",
-        "tmp_folder": "tmp"
+        "tmp_folder": "tmp",
+        "compression": "python/gzip/pigz"
     },
     "dbs": {
         "place1": {

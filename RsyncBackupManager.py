@@ -1,5 +1,6 @@
 import os
 import subprocess
+from Compressor import Compressor
 import BackupFileManager as BFM
 import tarfile
 import shutil
@@ -68,6 +69,11 @@ class RsyncBackupManager:
         else:
             self.tmp_folder = self.backup_file_manager.get_tmp_location()
 
+        compression_type = "python"
+        if "compression" in general_settings:
+            compression_type = general_settings['compression']
+
+        self.compressor = Compressor(compression_type)
 
 
     def backup(self):
@@ -89,12 +95,8 @@ class RsyncBackupManager:
             print("Finished rsync copy")
 
             if self.backup_format == "tgz":
-                rsync_temp_filename = os.path.join(self.tmp_folder, uuid.uuid4().hex + ".tgz")
-                print("Gzipping rsync files")
-                with tarfile.open(rsync_temp_filename, "w:gz") as tar:
-                    for name in os.listdir(rsync_download_loc):
-                        tar.add(os.path.join(rsync_download_loc, name), name)
-
+                rsync_temp_filename = os.path.join(self.tmp_folder, uuid.uuid4().hex)
+                rsync_temp_filename = self.compressor.compress(rsync_download_loc, rsync_temp_filename)
                 self.backup_file_manager.create_backups_as_needed(rsync_temp_filename)
 
                 print("Removing temporary gzipped file")
@@ -106,4 +108,4 @@ class RsyncBackupManager:
                 exit("No support for anything else atm :(")
 
         else:
-            print("No backup needed, doing nothing!")
+            print("No backup needed for rsync backup " + self.backup_name)

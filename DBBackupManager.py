@@ -7,6 +7,7 @@ import tarfile
 import mysql.connector
 import sshtunnel
 import MysqldumpWrapper
+from Compressor import Compressor
 
 
 class DBBackupManager:
@@ -86,6 +87,12 @@ class DBBackupManager:
             self.ssh_port = backup_config['ssh_port']
             self.ssh_keyfile = backup_config['ssh_keyfile']
 
+        compression_type = "python"
+        if "compression" in general_settings:
+            compression_type = general_settings['compression']
+
+        self.compressor = Compressor(compression_type)
+
     def backup(self):
         if self.backup_file_manager.backup_needed():
             print("Backup is needed, starting to download")
@@ -143,10 +150,7 @@ class DBBackupManager:
             print("Finished database dump")
             if self.backup_format == "tgz":
                 print("Gzipping database tables")
-                tarfile_location = my_download_loc + ".tgz"
-                with tarfile.open(tarfile_location, "w:gz") as tar:
-                    for name in os.listdir(my_download_loc):
-                        tar.add(os.path.join(my_download_loc, name), name)
+                tarfile_location = self.compressor.compress(my_download_loc, my_download_loc)
 
                 self.backup_file_manager.create_backups_as_needed(tarfile_location)
                 print("removing temporary tarred file")
@@ -162,4 +166,4 @@ class DBBackupManager:
             print("Finished database backup")
 
         else:
-            print("No backup needed, doing nothing!")
+            print("No backup needed for DB backup " + self.backup_name)
