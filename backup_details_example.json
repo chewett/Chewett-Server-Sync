@@ -2,7 +2,8 @@
     "settings": {
         "mysqldump": "mysqldump",
         "tmp_folder": "tmp",
-        "compression": "python/gzip/pigz"
+        "compression": "python/gzip/pigz",
+        "influx_cli": "influx"
     },
     "dbs": {
         "place1": {
@@ -15,6 +16,7 @@
                 "whitelistB"
             ],
             "store_location": "C:\\something...",
+            "backup_file_format": "tgz",
             "daily_backups": -1,
             "weekly_backups": -1,
             "monthly_backups": -1
@@ -54,6 +56,18 @@
             "keyfile": "keyfile",
             "store_location": "C:\\something...",
             "rsync_options": "--exclude={\"/dev/*\",\"/proc/*\",\"/sys/*\",\"/tmp/*\",\"/run/*\",\"/mnt/*\",\"/media/*\",\"/lost+found\"}",
+            "daily_backups": -1,
+            "weekly_backups": -1,
+            "monthly_backups": -1
+        }
+    },
+    "influx": {
+        "test": {
+            "host": "http://localhost:8086",
+            "org": "default",
+            "token": "asdasdasd",
+            "store_location": "influx",
+            "backup_file_format": "tgz",
             "daily_backups": -1,
             "weekly_backups": -1,
             "monthly_backups": -1
