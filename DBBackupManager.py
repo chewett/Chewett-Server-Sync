@@ -3,7 +3,6 @@ import os
 import uuid
 import shutil
 import BackupFileManager as BFM
-import tarfile
 import mysql.connector
 import sshtunnel
 import MysqldumpWrapper
@@ -42,7 +41,7 @@ class DBBackupManager:
             self.port = 3306
 
         if "store_location" in backup_config:
-            backup_location = os.path.join(backup_config['store_location'])
+            backup_location = backup_config['store_location']
         else:
             backup_location = os.path.join(DBBackupManager.DB_DUMP_LOCATION, self.backup_name)
 
