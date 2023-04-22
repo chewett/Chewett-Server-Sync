@@ -5,6 +5,7 @@ import uuid
 from CommandRunner import run_command
 import shutil
 
+
 class InfluxBackupManager:
 
     INFLUX_DUMP_LOCATION = "influx"
