@@ -84,7 +84,7 @@ class RsyncBackupManager:
                 keyfile_cmd = " -i " + self.keyfile
 
             rsync_download_loc = self.backup_file_manager.get_current_location()
-            command = "rsync -rthvz --delete " + self.rsync_options + " -e 'ssh" + keyfile_cmd + "' " + \
+            command = "rsync -rthz --delete " + self.rsync_options + " -e 'ssh" + keyfile_cmd + "' " + \
                       self.user + "@" + self.host + ":" + self.directory + " ."
 
             # move to the directory and tell rsync to download to that location
